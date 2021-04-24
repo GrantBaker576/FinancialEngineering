@@ -1,0 +1,31 @@
+binTree:{[d;u;t;deltaT;r;s;k]
+ //returns European put/call binomial tree in table form
+ //d--downstep multiplier
+ //u--upstep multiplier
+ //t--timesteps
+ //deltaT--number of timesteps per year
+ //r--annual risk free rate
+ //s--Stock Price
+ //k--strike
+ maxNodes:t+1;
+ nodeList:raze (til maxNodes) #'(til maxNodes);
+ q:((exp(neg r*deltaT))-d)%(u-d); //risk neutral "probability"
+ upsteps:raze reverse each til each distinct nodeList;
+ downsteps:raze til each distinct nodeList;
+ stockPrice:s*xexp[u;upsteps]*xexp[d;downsteps];
+ //initialization for calls
+ optionPrice:0|(neg k)+(max nodeList)#reverse stockPrice;
+ list:(-2_til count nodeList) except (-1+max nodeList),(-1+(max nodeList) +\(reverse til (max nodeList)));
+ counter:-1_reverse til (max nodeList);
+ //iterate for each timestep
+ do[-1 + max nodeList;optionPrice,:(exp(neg r*deltaT))*{[n;q;optionPrice]((1-q)*optionPrice[n])+(q*optionPrice[n+1])}[(first counter)#list;q;optionPrice];list:(first counter)_list;counter:1_counter];
+ optionPrice:reverse optionPrice;
+ //initialization for puts
+ putPrice:0|k-(max nodeList)#reverse stockPrice;
+ list:(-2_til count nodeList) except (-1+max nodeList),(-1+(max nodeList) +\(reverse til (max nodeList)));
+ counter:-1_reverse til (max nodeList);
+ //iterate for each timestep
+ do[-1 + max nodeList;putPrice,:(exp(neg r*deltaT))*{[n;q;putPrice]((1-q)*putPrice[n])+(q*putPrice[n+1])}[(first counter)#list;q;putPrice];list:(first counter)_list;counter:1_counter];
+ putPrice:reverse putPrice;
+ tree:flip `time`upsteps`downsteps`stockPrice`call`put!(nodeList;upsteps;downsteps;stockPrice;optionPrice;putPrice);
+ tree};
