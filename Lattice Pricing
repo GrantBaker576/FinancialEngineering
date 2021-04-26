@@ -29,8 +29,8 @@ binTree:{[d;u;t;deltaT;r;y;s;k]
  putPrice:reverse putPrice;
  tree:flip `time`upsteps`downsteps`stockPrice`call`put!(nodeList;upsteps;downsteps;stockPrice;callPrice;putPrice);
  tree};
- 
- binTreeAmerican:{[d;u;t;deltaT;r;y;s;k]
+
+binTreeAmerican:{[d;u;t;deltaT;r;y;s;k]
  //returns American put/call binomial tree in table form. Exercise when call=exCall, put=exPut
  //d--downstep multiplier
  //u--upstep multiplier
