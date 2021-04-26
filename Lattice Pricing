@@ -1,25 +1,25 @@
-binTree:{[d;u;t;deltaT;r;s;k]
+binTree:{[d;u;t;deltaT;r;y;s;k]
  //returns European put/call binomial tree in table form
  //d--downstep multiplier
  //u--upstep multiplier
- //t--timesteps
+ //t--timesteps(including first)
  //deltaT--number of timesteps per year
- //r--annual risk free rate
+ //r--risk free rate(for cont. dividends, 0 if none)
+ //y--yield
  //s--Stock Price
  //k--strike
- maxNodes:t+1;
- nodeList:raze (til maxNodes) #'(til maxNodes);
- q:((exp(neg r*deltaT))-d)%(u-d); //risk neutral "probability"
+ nodeList:asc raze (til t+1) #'(til t+1); //gives the sorted attribute
+ q:((exp(deltaT*r-y))-d)%(u-d); //risk neutral "probability"
  upsteps:raze reverse each til each distinct nodeList;
  downsteps:raze til each distinct nodeList;
  stockPrice:s*xexp[u;upsteps]*xexp[d;downsteps];
  //initialization for calls
- optionPrice:0|(neg k)+(max nodeList)#reverse stockPrice;
+ callPrice:0|(neg k)+(max nodeList)#reverse stockPrice;
  list:(-2_til count nodeList) except (-1+max nodeList),(-1+(max nodeList) +\(reverse til (max nodeList)));
  counter:-1_reverse til (max nodeList);
  //iterate for each timestep
- do[-1 + max nodeList;optionPrice,:(exp(neg r*deltaT))*{[n;q;optionPrice]((1-q)*optionPrice[n])+(q*optionPrice[n+1])}[(first counter)#list;q;optionPrice];list:(first counter)_list;counter:1_counter];
- optionPrice:reverse optionPrice;
+ do[-1 + max nodeList;callPrice,:(exp(neg r*deltaT))*{[n;q;callPrice]((1-q)*callPrice[n])+(q*callPrice[n+1])}[(first counter)#list;q;callPrice];list:(first counter)_list;counter:1_counter];
+ callPrice:reverse callPrice;
  //initialization for puts
  putPrice:0|k-(max nodeList)#reverse stockPrice;
  list:(-2_til count nodeList) except (-1+max nodeList),(-1+(max nodeList) +\(reverse til (max nodeList)));
@@ -27,5 +27,45 @@ binTree:{[d;u;t;deltaT;r;s;k]
  //iterate for each timestep
  do[-1 + max nodeList;putPrice,:(exp(neg r*deltaT))*{[n;q;putPrice]((1-q)*putPrice[n])+(q*putPrice[n+1])}[(first counter)#list;q;putPrice];list:(first counter)_list;counter:1_counter];
  putPrice:reverse putPrice;
- tree:flip `time`upsteps`downsteps`stockPrice`call`put!(nodeList;upsteps;downsteps;stockPrice;optionPrice;putPrice);
+ tree:flip `time`upsteps`downsteps`stockPrice`call`put!(nodeList;upsteps;downsteps;stockPrice;callPrice;putPrice);
+ tree};
+ 
+ binTreeAmerican:{[d;u;t;deltaT;r;y;s;k]
+ //returns American put/call binomial tree in table form. Exercise when call=exCall, put=exPut
+ //d--downstep multiplier
+ //u--upstep multiplier
+ //t--timesteps(including first)
+ //deltaT--number of timesteps per year
+ //r--risk free rate(for cont. dividends, 0 if none)
+ //y--yield
+ //s--Stock Price
+ //k--strike
+ tree:binTree[d;u;t;deltaT;r;y;s;k];
+ q:((exp(deltaT*r-y))-d)%(u-d); //risk neutral "probability"
+ call:exec call from tree;
+ put:exec put from tree;
+ time:exec time from tree;
+ stockPrice:exec stockPrice from tree;
+ //initialization for calls
+ exCall:(exp(r*deltaT*(neg time)+ max time))*0|stockPrice-k;
+ tree:update exCall:exCall from tree;
+ exCall:reverse exCall;
+ callPrice:0|(neg k)+(max time)#reverse stockPrice;
+ list:(-2_til count time) except (-1+max time),(-1+(max time) +\(reverse til (max time)));
+ counter:-1_reverse til (max time);
+ //iterate for each timestep (call)
+ do[-1 + max time;callPrice,:(exp(neg r*deltaT))*{[n;q;callPrice]((1-q)*callPrice[n])+(q*callPrice[n+1])}[(first counter)#list;q;callPrice];callPrice:callPrice[til count callPrice]|exCall[til count callPrice];list:(first counter)_list;counter:1_counter];
+ callPrice:reverse callPrice;
+ //initialization for puts
+ putPrice:0|k-(max time)#reverse stockPrice;
+ exPut:(exp(r*deltaT*(neg time)+ max time))*0|k-stockPrice;
+ tree:update exPut:exPut from tree;
+ exPut:reverse exPut;
+ list:(-2_til count time) except (-1+max time),(-1+(max time) +\(reverse til (max time)));
+ counter:-1_reverse til (max time);
+ //iterate for each timestep (put)
+ do[-1 + max time;putPrice,:(exp(neg r*deltaT))*{[n;q;putPrice]((1-q)*putPrice[n])+(q*putPrice[n+1])}[(first counter)#list;q;putPrice];putPrice:putPrice[til count putPrice]|exPut[til count putPrice];list:(first counter)_list;counter:1_counter];
+ putPrice:reverse putPrice;
+ tree:update call:callPrice from tree;
+ tree:update put:putPrice from tree;
  tree};
