@@ -69,3 +69,33 @@ binTreeAmerican:{[d;u;t;deltaT;r;y;s;k]
  tree:update call:callPrice from tree;
  tree:update put:putPrice from tree;
  tree};
+
+barrierUpOutEur:{[dict]
+ //dict has keys d,u,t,deltaT,r,y,s,k,b
+ //downstep, upstep, timesteps(including first), timesteps per year, risk free rate, yield, stock, strike, barrier
+ t:"i"$dict[`t];
+ tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
+ tree:update call:0f from tree where stockPrice>dict[`b];
+ tree:update put:0f from tree where stockPrice>dict[`b];
+ q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]); //risk neutral "probability"
+ call:exec call from tree;
+ put:exec put from tree;
+ time:exec time from tree;
+ stockPrice:reverse exec stockPrice from tree;
+ //initialization for calls
+ callPrice:(max time)#reverse exec call from tree;
+ list:(-2_til count time) except (-1+max time),(-1+(max time) +\(reverse til (max time)));
+ counter:-1_reverse til (max time);
+ //iterate for each timestep (call)
+ do[-1 + max time;callPrice,:(exp(neg dict[`r]*dict[`deltaT]))*{[n;q;callPrice]((1-q)*callPrice[n])+(q*callPrice[n+1])}[(first counter)#list;q;callPrice];callPrice[where stockPrice[til count callPrice]>dict[`b]]:0f;list:(first counter)_list;counter:1_counter];
+ callPrice:reverse callPrice;
+ tree:update call:callPrice from tree;
+ //initialization for puts
+ putPrice:(max time)#reverse exec put from tree;
+ list:(-2_til count time) except (-1+max time),(-1+(max time) +\(reverse til (max time)));
+ counter:-1_reverse til (max time);
+ //iterate for each  timestep (put)
+ do[-1 + max time;putPrice,:(exp(neg dict[`r]*dict[`deltaT]))*{[n;q;putPrice]((1-q)*putPrice[n])+(q*putPrice[n+1])}[(first counter)#list;q;putPrice];putPrice[where stockPrice[til count putPrice]>dict[`b]]:0f;list:(first counter)_list;counter:1_counter];
+ putPrice:reverse putPrice;
+ tree:update put:putPrice from tree;
+ tree};
