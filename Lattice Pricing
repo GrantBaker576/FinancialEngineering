@@ -42,7 +42,7 @@ binTreeAmerican:{[d;u;t;deltaT;r;y;s;k]
  //s--Stock Price
  //k--strike
  tree:binTree[d;u;t;deltaT;r;y;s;k];
- q:((exp(deltaT*r-y))-d)%(u-d); //risk neutral "probability"
+ $[d=1%u;q:((exp(deltaT*r-y))-d)%(u-d);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -78,7 +78,7 @@ barrierUpOutEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice>dict[`b];
  tree:update put:0f from tree where stockPrice>dict[`b];
- q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]); //risk neutral "probability"
+ $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -108,7 +108,7 @@ barrierUpInEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice<dict[`b];
  tree:update put:0f from tree where stockPrice<dict[`b];
- q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]); //risk neutral "probability"
+ $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -138,7 +138,7 @@ barrierDownOutEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice<dict[`b];
  tree:update put:0f from tree where stockPrice<dict[`b];
- show q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]); //risk neutral "probability"
+ $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -168,7 +168,7 @@ barrierDownInEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice>dict[`b];
  tree:update put:0f from tree where stockPrice>dict[`b];
- q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]); //risk neutral "probability"
+ $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
