@@ -78,7 +78,7 @@ barrierUpOutEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice>dict[`b];
  tree:update put:0f from tree where stockPrice>dict[`b];
- $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
+ $[dict[`d]=1%dict[`u];q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -108,7 +108,7 @@ barrierUpInEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice<dict[`b];
  tree:update put:0f from tree where stockPrice<dict[`b];
- $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
+ $[dict[`d]=1%dict[`u];q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -138,7 +138,7 @@ barrierDownOutEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice<dict[`b];
  tree:update put:0f from tree where stockPrice<dict[`b];
- $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
+ $[dict[`d]=1%dict[`u];q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
@@ -168,7 +168,7 @@ barrierDownInEur:{[dict]
  tree:binTree[dict[`d];dict[`u];t;dict[`deltaT];dict[`r];dict[`y];dict[`s];dict[`k]];
  tree:update call:0f from tree where stockPrice>dict[`b];
  tree:update put:0f from tree where stockPrice>dict[`b];
- $[d=1%u;q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
+ $[dict[`d]=1%dict[`u];q:((exp(dict[`deltaT]*dict[`r]-dict[`y]))-dict[`d])%(dict[`u]-dict[`d]);q:.5]; //risk neutral "probability"
  call:exec call from tree;
  put:exec put from tree;
  time:exec time from tree;
