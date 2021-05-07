@@ -10,7 +10,7 @@ binTree:{[d;u;t;deltaT;r;y;s;k]
  //s--Stock Price
  //k--strike
  nodeList:asc raze (til t+1) #'(til t+1); //gives the sorted attribute
- q:((exp(deltaT*r-y))-d)%(u-d); //risk neutral "probability"
+ q$[d=1%u;q:((exp(deltaT*r-y))-d)%(u-d);q:.5]; //risk neutral "probability"
  upsteps:raze reverse each til each distinct nodeList;
  downsteps:raze til each distinct nodeList;
  stockPrice:s*xexp[u;upsteps]*xexp[d;downsteps];
